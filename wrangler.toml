@@ -1,4 +1,4 @@
-name = "mail-send-ts"
+name = "cloudflare-workers-email"
 main = "src/index.ts"
 compatibility_date = "2022-11-24"
 
@@ -8,3 +8,4 @@ DKIM_SELECTOR = ""
 DKIM_PRIVATE_KEY = ""
 EMAIL_DEFAULT_FROM = ""
 EMAIL_DEFAULT_FROMNAME = ""
+AUTH_TOKEN = "
