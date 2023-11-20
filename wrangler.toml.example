@@ -1,0 +1,11 @@
+name = "cloudflare-workers-email"
+main = "src/index.ts"
+compatibility_date = "2023-11-20"
+
+[vars]
+DKIM_DOMAIN = ""
+DKIM_SELECTOR = ""
+DKIM_PRIVATE_KEY = ""
+EMAIL_DEFAULT_FROM = ""
+EMAIL_DEFAULT_FROMNAME = ""
+AUTH_TOKEN = ""
