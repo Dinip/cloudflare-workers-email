@@ -39,12 +39,13 @@ export default {
 		try {
 			const req = await request.json() as Email
 
+			for (const [key, value] of Object.entries(env)) {
+				if (!value) return new Response(`Env variable ${key} is not set`, { status: 500 });
+			}
+
 			if (!req.to) return new Response("No recipient", { status: 400 });
 			if (!req.subject) return new Response("No subject", { status: 400 });
 			if (!req.content) return new Response("No content", { status: 400 });
-
-			if (req.from && !req.from.includes(`@${env.DKIM_DOMAIN}`))
-				return new Response("You must use a domain that matches your DKIM domain", { status: 400 });
 
 			const send_request = new Request("https://api.mailchannels.net/tx/v1/send", {
 				"method": "POST",

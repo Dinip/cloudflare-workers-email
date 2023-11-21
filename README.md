@@ -73,9 +73,9 @@ DKIM_SELECTOR = "<selector>" # same selector name used in Step 2
 
 DKIM_PRIVATE_KEY = "<content of the file priv_key_base64.txt>" # from Step 1
 
-EMAIL_DEFAULT_FROM = <noreply>@example.com # left side of your default from email address, don't include the domain name
+EMAIL_DEFAULT_FROM = "<noreply>" # left side of your default from email address, don't include the domain name
 
-EMAIL_DEFAULT_FROMNAME = "Noreply My Domain" # your default from display name
+EMAIL_DEFAULT_FROMNAME = "NoReply My Domain" # your default from display name
 
 AUTH_TOKEN = "<auth-token>" # an internal token to protect your email API endpoint.
 ```
