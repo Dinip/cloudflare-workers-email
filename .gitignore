@@ -170,5 +170,6 @@ dist
 
 .dev.vars
 
-keys/*
+keys
 wrangler.toml
+.wrangler

@@ -1,84 +1,80 @@
-export interface Env {
-	DKIM_DOMAIN: string
-	DKIM_SELECTOR: string
-	DKIM_PRIVATE_KEY: string
-	EMAIL_DEFAULT_FROM: string
-	EMAIL_DEFAULT_FROMNAME: string
-	AUTH_TOKEN: string
-}
+import {
+  BadRequestError,
+  GenericResponse,
+  InternalServerError,
+  MethodNotAllowedError,
+  OK,
+  UnauthorizedError
+} from './responses'
+import { Email, Env } from './types'
 
-type Email = {
-	to: SendTo[]
-	cc?: SendTo[]
-	bcc?: SendTo[]
-	from?: string
-	fromName?: string
-	replyTo?: string
-	subject: string
-	html: boolean
-	content: string
-}
-
-type SendTo = {
-	email: string,
-	name?: string
-}
-
-//mailchannels api docs: https://api.mailchannels.net/tx/v1/documentation
+// MailChannels API docs: https://api.mailchannels.net/tx/v1/documentation
 
 export default {
-	async fetch(
-		request: Request,
-		env: Env,
-		_ctx: ExecutionContext
-	): Promise<Response> {
-		if (request.method != "POST") return new Response("Method not allowed", { status: 405 });
-		const auth = request.headers.get("Authorization")
-		if (!auth || auth == "" || auth != env.AUTH_TOKEN) return new Response("Unauthorized", { status: 401 });
+  async fetch(
+    request: Request,
+    env: Env,
+    _ctx: ExecutionContext
+  ): Promise<Response> {
+    if (request.method != 'POST') return new MethodNotAllowedError()
 
-		try {
-			const req = await request.json() as Email
+    const auth = request.headers.get('Authorization')
+    const token = auth?.includes(' ') ? auth?.split(' ')[1] : auth
+    if (token != env.AUTH_TOKEN) return new UnauthorizedError()
 
-			for (const [key, value] of Object.entries(env)) {
-				if (!value) return new Response(`Env variable ${key} is not set`, { status: 500 });
-			}
+    for (const [key, value] of Object.entries(env)) {
+      if (!value)
+        return new InternalServerError(`Env variable ${key} is not set`)
+    }
 
-			if (!req.to) return new Response("No recipient", { status: 400 });
-			if (!req.subject) return new Response("No subject", { status: 400 });
-			if (!req.content) return new Response("No content", { status: 400 });
+    try {
+      const { from, fromName, to, cc, bcc, replyTo, subject, content, html } =
+        await request.json<Email>()
 
-			const send_request = new Request("https://api.mailchannels.net/tx/v1/send", {
-				"method": "POST",
-				"headers": {
-					"content-type": "application/json",
-				},
-				"body": JSON.stringify({
-					personalizations: [{
-						to: req.to,
-						cc: req.cc,
-						bcc: req.bcc,
-						reply_to: req.replyTo,
-						dkim_domain: env.DKIM_DOMAIN,
-						dkim_selector: env.DKIM_SELECTOR,
-						dkim_private_key: env.DKIM_PRIVATE_KEY,
-					}],
-					from: {
-						email: `${req.from || env.EMAIL_DEFAULT_FROM}@${env.DKIM_DOMAIN}`,
-						name: `${req.fromName || env.EMAIL_DEFAULT_FROMNAME}`,
-					},
-					subject: req.subject,
-					content: [{
-						type: `${req.html ? "text/html" : "text/plain"}`,
-						value: req.content,
-					}],
-				}),
-			});
+      if (!to) return new BadRequestError('No recipient')
+      if (!subject) return new BadRequestError('No subject')
+      if (!content) return new BadRequestError('No content')
 
-			const res = await fetch(send_request)
-			if (!res.ok) return new Response(await res.text(), { status: res.status });
-			return new Response("Email sent", { status: 200 });
-		} catch (err) {
-			return new Response("Error", { status: 500 });
-		}
-	}
+      const send_request = new Request(
+        'https://api.mailchannels.net/tx/v1/send',
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            personalizations: [
+              {
+                to,
+                cc,
+                bcc,
+                reply_to: replyTo,
+                dkim_domain: env.DKIM_DOMAIN,
+                dkim_selector: env.DKIM_SELECTOR,
+                dkim_private_key: env.DKIM_PRIVATE_KEY
+              }
+            ],
+            from: {
+              email: `${from || env.EMAIL_DEFAULT_FROM}@${env.DKIM_DOMAIN}`,
+              name: fromName || env.EMAIL_DEFAULT_FROMNAME
+            },
+            subject,
+            content: [
+              {
+                type: html ? 'text/html' : 'text/plain',
+                value: content
+              }
+            ]
+          })
+        }
+      )
+
+      const res = await fetch(send_request)
+      if (!res.ok) return new GenericResponse('External API error', res.status)
+      return new OK()
+    } catch (err) {
+      console.error(err)
+      return new InternalServerError()
+    }
+  }
 }
