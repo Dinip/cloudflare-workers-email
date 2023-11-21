@@ -41,23 +41,19 @@ mailchannelsworker._domainkey IN TXT "v=DKIM1; k=rsa p=MIGfMA0GCSqGSIb3DQEBAQUAA
 
 Add `include:relay.mailchannels.net` to your domain's SPF record DNS entries.
 
-**If you already have an email provider working, be careful when updating your spf record. You just need to add `include:relay.mailchannels.net` before the `-all` or `~all` part, at the end of your already existing record.**
-
-A final **example** of a SPF record could look like this:
-
 ```plaintext
 <example.com> IN TXT "v=spf1 a mx include:relay.mailchannels.net -all"
 ```
 
 Replace `<example.com>` with your actual domain name.
 
-If you already have a SPF record, you can add `include:relay.mailchannels.net` to the existing SPF record. For example:
+**Note:** If you already have an email provider working, be careful when updating your SPF record. You just need to add `include:relay.mailchannels.net` before the `-all` or `~all` part, at the end of your already existing record. For example:
 
 ```plaintext
-v=spf1 include:eu.mailgun.org include:relay.mailchannels.net -all
+<example.com> IN TXT "v=spf1 include:eu.mailgun.org include:relay.mailchannels.net -all"
 ```
 
-### Step 4: Add TXT Mailchannels Auth Record for Cloudflare Workers
+### Step 4: Add TXT MailChannels Auth Record for Cloudflare Workers
 
 Add the following DNS TXT record to your domain's DNS entries:
 
