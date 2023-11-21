@@ -38,10 +38,14 @@ mailchannelsworker._domainkey IN TXT "v=DKIM1; k=rsa p=MIGfMA0GCSqGSIb3DQEBAQUAA
 
 ### Step 3: Configure SPF Records
 
-Add `include:relay.mailchannels.net` to your domain's SPF record DNS entries. The final SPF record should look like this:
+Add `include:relay.mailchannels.net` to your domain's SPF record DNS entries. 
+
+**If you already have an email provider working, be careful when updating your spf record. You just need to add `include:relay.mailchannels.net` before the `-all` or `~all` part, at the end of your already existing record.**
+
+A final **example** of a SPF record could look like this:
 
 ```plaintext 
-<example.com> IN TXT "v=spf1 a mx include:relay.mailchannels.net -all"
+<example.com> IN TXT "v=spf1 mx include:spf.protection.outlook.com include:relay.mailchannels.net -all"
 ```
 
 Replace `<example.com>` with your actual domain name.
@@ -51,8 +55,10 @@ Replace `<example.com>` with your actual domain name.
 Add the following DNS TXT record to your domain's DNS entries:
 
 ```plaintext
-_mailchannels.example.com IN TXT "v=mc1 cfid=<account-subdomain>"
+_mailchannels.<example.com> IN TXT "v=mc1 cfid=<account-subdomain>"
 ```
+
+Replace `<example.com>` with your actual domain name.
 
 You can find your account-subdomain at [dash.cloudflare.net](dash.cloudflare.net) at the right side on the to Workers & Pages tab.
 
