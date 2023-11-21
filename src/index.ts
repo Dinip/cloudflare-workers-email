@@ -70,7 +70,7 @@ export default {
       )
 
       const res = await fetch(send_request)
-      if (!res.ok) return new GenericResponse(await res.text(), res.status)
+      if (!res.ok) return new GenericResponse('External API error', res.status)
       return new OK()
     } catch (err) {
       console.error(err)
