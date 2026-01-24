@@ -1,3 +1,6 @@
+# IMPORTANT
+### [As of August 31, 2024, MailChannels has sunset its free email sending service for Cloudflare Workers users](https://support.mailchannels.com/hc/en-us/articles/4565898358413-Sending-Email-from-Cloudflare-Workers-using-MailChannels-Email-API) 
+
 # DKIM Key Generation and DNS Record Setup
 
 ## Instructions
